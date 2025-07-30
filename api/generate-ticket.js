@@ -13,17 +13,16 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 export default async function handler(req, res) {
-  // Tambahkan CORS header ke semua response
+  // CORS headers untuk semua request
   res.setHeader('Access-Control-Allow-Origin', 'https://tiketartfestrealizm.netlify.app');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // ✅ Tangani preflight OPTIONS request (CORS)
+  // ✅ Tangani preflight request dengan benar
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.status(204).end(); // gunakan 204, bukan 200
   }
 
-  // 🚫 Tolak method selain POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -46,15 +45,9 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('🔥 ERROR:', error);
 
-    // ⛑ Tambahkan CORS juga di response error
+    // Header CORS juga di response error
     res.setHeader('Access-Control-Allow-Origin', 'https://tiketartfestrealizm.netlify.app');
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 }
 
-// ✅ Konfigurasi Next.js API agar mendukung JSON body
-export const config = {
-  api: {
-    bodyParser: true,
-  },
-};
