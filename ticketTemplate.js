@@ -1,6 +1,9 @@
 import fs from 'fs';
 import PDFDocument from 'pdfkit';
 import qr from 'qr-image';
+import generateTicketPDF from '../utils/generateTicketPDF.js';
+
+await generateTicketPDF({ name, email, kontak, harga, qrData, outputPath });
 
 export default async function generateTicketPDF({ name, email, kontak, harga, qrData, outputPath }) {
   return new Promise((resolve, reject) => {
