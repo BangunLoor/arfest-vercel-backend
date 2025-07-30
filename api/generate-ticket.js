@@ -10,23 +10,24 @@ if (!admin.apps.length) {
   });
 }
 const db = admin.firestore();
-
 export default async function handler(req, res) {
-  // ✅ Tangani preflight CORS
+  // Selalu set header CORS terlebih dahulu
+  res.setHeader('Access-Control-Allow-Origin', 'https://tiketartfestrealizm.netlify.app');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', 'https://tiketartfestrealizm.netlify.app');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    return res.status(200).end();
+    return res.status(200).end(); // Preflight request
   }
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  res.setHeader('Access-Control-Allow-Origin', 'https://tiketartfestrealizm.netlify.app');
-
   try {
+    // ...lanjutan proses generate tiket
+
+ {
     const { name, email, kontak, harga } = req.body;
     const docRef = db.collection('tickets').doc();
     const qrData = `ARTFEST-${docRef.id}`;
