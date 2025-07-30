@@ -10,10 +10,10 @@ export default async function sendEmail({ email, name, pdfPath }) {
   });
 
   await transporter.sendMail({
-    from: \`"ArtFest ReaLizM" <\${process.env.EMAIL_USER}>\`,
+    from: `"ArtFest ReaLizM" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Tiket ArtFest ReaLizM',
-    text: \`Halo \${name}, berikut tiket kamu. Tunjukkan ini saat masuk ke venue.\`,
+    text: `Halo ${name}, berikut tiket kamu. Tunjukkan ini saat masuk ke venue.`,
     attachments: [
       {
         filename: 'tiket-artfest.pdf',
