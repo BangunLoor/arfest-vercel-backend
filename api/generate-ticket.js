@@ -1,6 +1,4 @@
-import { readFile } from 'fs/promises';
 import admin from 'firebase-admin';
-import nodemailer from 'nodemailer';
 import generatePDF from '../utils/generatePDF.js';
 import sendEmail from '../utils/sendEmail.js';
 
@@ -14,19 +12,19 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 export default async function handler(req, res) {
-  // ✅ Header CORS untuk semua request
-  res.setHeader('Access-Control-Allow-Origin', 'https://tiketartfestrealizm.netlify.app');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  // ✅ Tangani preflight request (OPTIONS)
+  // ✅ Tangani preflight CORS
   if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', 'https://tiketartfestrealizm.netlify.app');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  res.setHeader('Access-Control-Allow-Origin', 'https://tiketartfestrealizm.netlify.app');
 
   try {
     const { name, email, kontak, harga } = req.body;
@@ -43,7 +41,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, message: 'Tiket berhasil dikirim!' });
 
   } catch (err) {
-    console.error('🔥 ERROR:', err);
+    console.error(err);
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 }
