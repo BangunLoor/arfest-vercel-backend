@@ -10,8 +10,9 @@ if (!admin.apps.length) {
   });
 }
 const db = admin.firestore();
+
 export default async function handler(req, res) {
-  // Selalu set header CORS terlebih dahulu
+  // Set header CORS di semua jenis response
   res.setHeader('Access-Control-Allow-Origin', 'https://tiketartfestrealizm.netlify.app');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -25,9 +26,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // ...lanjutan proses generate tiket
-
- {
     const { name, email, kontak, harga } = req.body;
     const docRef = db.collection('tickets').doc();
     const qrData = `ARTFEST-${docRef.id}`;
