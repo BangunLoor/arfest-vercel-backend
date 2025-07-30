@@ -12,8 +12,11 @@ export default async function generatePDF({ name, email, kontak, harga, qrData, 
     const stream = fs.createWriteStream(outputPath);
     doc.pipe(stream);
 
-    doc.image('./assets/template.png', 0, 0, { width: 595, height: 420 });
+    // ✅ Load background dari buffer
+    const bgBuffer = fs.readFileSync('./assets/template.png');
+    doc.image(bgBuffer, 0, 0, { width: 595, height: 420 });
 
+    // Teks tiket
     doc.font('Helvetica-Bold').fontSize(24).fillColor('white');
     doc.text(name, 50, 50, { align: 'left' });
 
@@ -22,6 +25,7 @@ export default async function generatePDF({ name, email, kontak, harga, qrData, 
     doc.text(`Kontak: ${kontak}`, 50, 110);
     doc.text(`Harga Tiket: Rp${harga}`, 50, 130);
 
+    // QR Code
     const qr_png = qr.imageSync(qrData, { type: 'png' });
     doc.image(qr_png, 450, 250, { width: 100 });
 
