@@ -31,23 +31,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { name, email, kontak, harga } = req.body;
+  const { name, email, kontak, harga } = req.body;
 
-    const docRef = db.collection('tickets').doc();
-    const qrData = `ARTFEST-${docRef.id}`;
+  const docRef = db.collection('tickets').doc();
+  const qrData = `ARTFEST-${docRef.id}`;
 
-    await docRef.set({ name, email, kontak, harga, qr: qrData });
+  await docRef.set({ name, email, kontak, harga, qr: qrData });
 
-    const pdfPath = `/tmp/ticket-${docRef.id}.pdf`;
-    await generatePDF({ name, email, kontak, harga, qrData, outputPath: pdfPath });
+  const pdfPath = `/tmp/ticket-${docRef.id}.pdf`;
+  await generatePDF({ name, email, kontak, harga, qrData, outputPath: pdfPath });
 
-    await sendEmail({ email, name, pdfPath });
+  await sendEmail({ email, name, pdfPath });
 
-    return res.status(200).json({ success: true, message: 'Tiket berhasil dikirim!' });
-  } catch (error) {
-    console.error('🔥 ERROR:', error);
-    return res.status(500).json({ success: false, message: 'Server error.' });
-  }
+  return res.status(200).json({ success: true, message: 'Tiket berhasil dikirim!' });
+
+} catch (error) {
+  console.error('🔥 ERROR:', error);
+  return res.status(500).json({ success: false, message: 'Server error.' });
+}
+
 }
 
 // ✅ Konfigurasi Next.js API agar mendukung request body
