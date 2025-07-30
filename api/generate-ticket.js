@@ -1,47 +1,31 @@
-import admin from 'firebase-admin';
-import generatePDF from '../utils/generatePDF.js';
 import sendEmail from '../utils/sendEmail.js';
-
-// Inisialisasi Firebase Admin
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
-const db = admin.firestore();
+import generatePDF from '../utils/generatePDF.js';
+import fs from 'fs';
 
 export default async function handler(req, res) {
-  // ✅ SET CORS header di semua response
-  res.setHeader('Access-Control-Allow-Origin', 'https://tiketartfestrealizm.netlify.app');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  // ✅ Tangani preflight request (OPTIONS)
+  // ✅ Tambahan untuk fix CORS
   if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     return res.status(200).end();
   }
 
-  // ✅ Tangani hanya method POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  res.setHeader('Access-Control-Allow-Origin', '*'); // ganti * dengan domain Netlify kamu jika ingin lebih aman
+
+  if (req.method !== 'POST') return res.status(405).end();
+
+  const { name, email, kontak, harga } = req.body;
+  const id = Date.now().toString();
+  const qrData = `ARTFEST-${id}`;
+  const pdfPath = `/tmp/ticket-${id}.pdf`;
 
   try {
-    const { name, email, kontak, harga } = req.body;
-    const docRef = db.collection('tickets').doc();
-    const qrData = `ARTFEST-${docRef.id}`;
-
-    await docRef.set({ name, email, kontak, harga, qr: qrData });
-
-    const pdfPath = `/tmp/ticket-${docRef.id}.pdf`;
     await generatePDF({ name, email, kontak, harga, qrData, outputPath: pdfPath });
-
-    await sendEmail({ email, name, pdfPath });
-
-    return res.status(200).json({ success: true, message: 'Tiket berhasil dikirim!' });
+    await sendEmail(email, name, pdfPath);
+    res.status(200).json({ success: true, message: 'Tiket dikirim ke email!' });
   } catch (err) {
-    console.error('🔥 ERROR:', err);
-    return res.status(500).json({ success: false, message: 'Server error.' });
+    console.error(err);
+    res.status(500).json({ success: false, error: err.message });
   }
 }
